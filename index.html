@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Jeu de Course</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#111;color:#fff;font-family:Arial,sans-serif;text-align:center;overflow:hidden}
+h1{margin:10px 0;font-size:28px}.hud{display:flex;justify-content:center;gap:35px;font-size:18px;margin-bottom:8px}
+#game{position:relative;margin:auto;width:min(94vw,420px);height:75vh;max-height:700px;min-height:500px;background:#333;overflow:hidden;border:4px solid #fff;border-radius:14px}
+.road{position:absolute;inset:0;background:linear-gradient(90deg,#178a35 0 10%,#444 10% 90%,#178a35 90% 100%)}
+.line{position:absolute;width:8px;height:90px;background:#fff;left:calc(50% - 4px);top:-100px;animation:move 0.7s linear infinite}
+.line:nth-child(2){animation-delay:.35s}@keyframes move{to{top:100%}}
+.car,.enemy{position:absolute;width:48px;height:82px;border-radius:10px;z-index:5}
+.car{bottom:25px;background:#e22;left:calc(50% - 24px);box-shadow:0 0 12px #f55}
+.enemy{top:-100px;background:#168cff;box-shadow:0 0 10px #58aaff}
+.window{position:absolute;left:8px;top:9px;width:32px;height:22px;background:#bde8ff;border-radius:5px}
+.wheel{position:absolute;width:9px;height:18px;background:#111;border-radius:4px;top:13px}.w1{left:-5px}.w2{right:-5px}.w3{left:-5px;bottom:13px}.w4{right:-5px;bottom:13px}
+#start,#restart{padding:12px 22px;border:0;border-radius:8px;background:#ffca28;font-weight:bold;font-size:16px;cursor:pointer;margin:10px}
+#over{display:none;position:absolute;inset:0;background:#000b;z-index:10;align-items:center;justify-content:center;flex-direction:column}
+#over h2{font-size:36px;margin:8px}
+.hint{font-size:14px;opacity:.8;margin:8px}
+</style></head>
+<body>
+<h1>🏁 Jeu de Course</h1>
+<div class="hud"><span>Score : <b id="score">0</b></span><span>Vitesse : <b id="speed">1</b></span></div>
+<button id="start">Démarrer</button>
+<div id="game">
+<div class="road"><div class="line"></div><div class="line"></div></div>
+<div id="car" class="car"><div class="window"></div><i class="wheel w1"></i><i class="wheel w2"></i><i class="wheel w3"></i><i class="wheel w4"></i></div>
+<div id="enemy" class="enemy"><div class="window"></div><i class="wheel w1"></i><i class="wheel w2"></i><i class="wheel w3"></i><i class="wheel w4"></i></div>
+<div id="over"><h2>💥 GAME OVER</h2><p>Score : <b id="final">0</b></p><button id="restart">Rejouer</button></div>
+</div>
+<p class="hint">⬅️ ➡️ ou A / D pour diriger la voiture</p>
+<script>
+const game=document.getElementById('game'),car=document.getElementById('car'),enemy=document.getElementById('enemy');
+const scoreEl=document.getElementById('score'),speedEl=document.getElementById('speed'),over=document.getElementById('over'),final=document.getElementById('final');
+let x=game.clientWidth/2-24,y=-100,score=0,running=false,keys={},last=0,enemySpeed=4;
+function reset(){x=game.clientWidth/2-24;y=-100;score=0;enemySpeed=4;running=true;over.style.display='none';scoreEl.textContent=0;car.style.left=x+'px';enemy.style.left=(20+Math.random()*(game.clientWidth-68))+'px';enemy.style.top=y+'px';requestAnimationFrame(loop)}
+function hit(a,b){return !(a.right<b.left||a.left>b.right||a.bottom<b.top||a.top>b.bottom)}
+function loop(t){if(!running)return;let dt=Math.min(2,(t-last)/16.67||1);last=t;
+if(keys.ArrowLeft||keys.a)x-=6*dt;if(keys.ArrowRight||keys.d)x+=6*dt;x=Math.max(15,Math.min(game.clientWidth-63,x));y+=enemySpeed*dt;
+car.style.left=x+'px';enemy.style.top=y+'px';
+if(y>game.clientHeight+20){score++;scoreEl.textContent=score;enemySpeed=Math.min(12,4+score*.12);speedEl.textContent=(enemySpeed/4).toFixed(1);y=-100;enemy.style.left=(15+Math.random()*(game.clientWidth-63))+'px'}
+if(hit(car.getBoundingClientRect(),enemy.getBoundingClientRect())){running=false;final.textContent=score;over.style.display='flex';return}
+requestAnimationFrame(loop)}
+addEventListener('keydown',e=>{keys[e.key]=true;if(['ArrowLeft','ArrowRight',' '].includes(e.key))e.preventDefault()});
+addEventListener('keyup',e=>keys[e.key]=false);
+document.getElementById('start').onclick=reset;document.getElementById('restart').onclick=reset;
+</script></body></html>
