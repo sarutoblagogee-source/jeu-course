@@ -1,50 +1,59 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Jeu de Course</title>
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Nitro Rush — Jeu de course</title>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#111;color:#fff;font-family:Arial,sans-serif;text-align:center;overflow:hidden}
-h1{margin:10px 0;font-size:28px}.hud{display:flex;justify-content:center;gap:35px;font-size:18px;margin-bottom:8px}
-#game{position:relative;margin:auto;width:min(94vw,420px);height:75vh;max-height:700px;min-height:500px;background:#333;overflow:hidden;border:4px solid #fff;border-radius:14px}
-.road{position:absolute;inset:0;background:linear-gradient(90deg,#178a35 0 10%,#444 10% 90%,#178a35 90% 100%)}
-.line{position:absolute;width:8px;height:90px;background:#fff;left:calc(50% - 4px);top:-100px;animation:move 0.7s linear infinite}
-.line:nth-child(2){animation-delay:.35s}@keyframes move{to{top:100%}}
-.car,.enemy{position:absolute;width:48px;height:82px;border-radius:10px;z-index:5}
-.car{bottom:25px;background:#e22;left:calc(50% - 24px);box-shadow:0 0 12px #f55}
-.enemy{top:-100px;background:#168cff;box-shadow:0 0 10px #58aaff}
-.window{position:absolute;left:8px;top:9px;width:32px;height:22px;background:#bde8ff;border-radius:5px}
-.wheel{position:absolute;width:9px;height:18px;background:#111;border-radius:4px;top:13px}.w1{left:-5px}.w2{right:-5px}.w3{left:-5px;bottom:13px}.w4{right:-5px;bottom:13px}
-#start,#restart{padding:12px 22px;border:0;border-radius:8px;background:#ffca28;font-weight:bold;font-size:16px;cursor:pointer;margin:10px}
-#over{display:none;position:absolute;inset:0;background:#000b;z-index:10;align-items:center;justify-content:center;flex-direction:column}
-#over h2{font-size:36px;margin:8px}
-.hint{font-size:14px;opacity:.8;margin:8px}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top,#19345c,#05070c 70%);color:white;font-family:Arial,sans-serif;text-align:center;overflow:hidden}
+h1{margin:8px 0;font-size:28px;text-shadow:0 0 12px #29b6ff}.hud{display:flex;justify-content:center;gap:18px;flex-wrap:wrap;margin:5px;font-weight:bold}
+.hud span{background:#101827dd;border:1px solid #35bfff;padding:6px 10px;border-radius:9px}.bar{width:100px;height:9px;background:#222;border-radius:9px;overflow:hidden;display:inline-block}.fill{height:100%;width:100%;background:#19d8ff}
+#game{position:relative;margin:auto;width:min(96vw,480px);height:min(78vh,700px);min-height:500px;overflow:hidden;border:3px solid #4bd8ff;border-radius:18px;background:#18230f;box-shadow:0 0 30px #0787b866}
+.sky{position:absolute;inset:0 0 45%;background:linear-gradient(#4bc9ff,#dff7ff 70%,#87b9c9);z-index:0}
+.mountain{position:absolute;bottom:43%;left:-10%;width:120%;height:100px;background:linear-gradient(135deg,transparent 45%,#284c58 46% 58%,transparent 59%),linear-gradient(45deg,transparent 45%,#355d68 46% 58%,transparent 59%);opacity:.8}
+.road{position:absolute;inset:28% 10% 0;background:#36383d;clip-path:polygon(30% 0,70% 0,100% 100%,0 100%);z-index:1}
+.road:before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(to bottom,transparent 0 70px,#fff 71px 105px,transparent 106px 160px);background-size:10px 160px;background-position:50% -80px;opacity:.85;animation:road .32s linear infinite}
+@keyframes road{to{background-position:50% 80px}}
+.edge{position:absolute;inset:28% 10% 0;border-left:7px solid #ffdf2e;border-right:7px solid #ffdf2e;clip-path:polygon(30% 0,70% 0,100% 100%,0 100%);z-index:2;pointer-events:none}
+.car,.enemy{position:absolute;width:52px;height:88px;border-radius:13px;z-index:6;transition:transform .08s}
+.car{bottom:42px;left:calc(50% - 26px);background:linear-gradient(90deg,#9b0015,#ff1744,#9b0015);box-shadow:0 0 20px #ff1744aa}
+.enemy{top:-120px;background:linear-gradient(90deg,#0753a9,#19a9ff,#0753a9);box-shadow:0 0 16px #19a9ff99}
+.window{position:absolute;left:9px;top:10px;width:34px;height:25px;background:linear-gradient(#dffaff,#367a9b);border-radius:7px}
+.wheel{position:absolute;width:10px;height:22px;background:#080808;border-radius:5px;top:13px}.w1{left:-5px}.w2{right:-5px}.w3{left:-5px;bottom:13px}.w4{right:-5px;bottom:13px}
+.coin{position:absolute;width:25px;height:25px;border-radius:50%;background:#ffd21a;border:3px solid #fff18a;z-index:5;box-shadow:0 0 15px #ffd21a;animation:spin .5s linear infinite}@keyframes spin{50%{transform:scale(.65) rotateY(90deg)}}
+.ramp{position:absolute;width:70px;height:30px;background:repeating-linear-gradient(135deg,#ff7a00 0 10px,#fff 10px 20px);z-index:4;transform:skewX(-8deg)}
+#nitroBtn{position:absolute;right:12px;bottom:12px;z-index:12;width:85px;height:85px;border-radius:50%;border:3px solid #68e8ff;background:#006b91cc;color:#fff;font-size:16px;font-weight:bold;box-shadow:0 0 22px #00cfff;cursor:pointer}
+#start,#restart{padding:11px 20px;border:0;border-radius:10px;background:#ffd21a;color:#111;font-weight:bold;cursor:pointer}
+#over{display:none;position:absolute;inset:0;background:#02050ccc;z-index:20;align-items:center;justify-content:center;flex-direction:column}
+#over h2{font-size:38px;margin:8px;color:#ff3157;text-shadow:0 0 15px #ff3157}.hint{font-size:13px;opacity:.85;margin:5px}
 </style></head>
 <body>
-<h1>🏁 Jeu de Course</h1>
-<div class="hud"><span>Score : <b id="score">0</b></span><span>Vitesse : <b id="speed">1</b></span></div>
-<button id="start">Démarrer</button>
-<div id="game">
-<div class="road"><div class="line"></div><div class="line"></div></div>
+<h1>🏎️ NITRO RUSH</h1>
+<div class="hud"><span>🏁 <b id="score">0</b></span><span>💰 <b id="coins">0</b></span><span>⚡ <b id="kmh">120</b> km/h</span><span>NITRO <i class="bar"><i id="nitro" class="fill"></i></i></span></div>
+<button id="start">▶ DÉMARRER</button>
+<div id="game"><div class="sky"></div><div class="mountain"></div><div class="road"></div><div class="edge"></div>
 <div id="car" class="car"><div class="window"></div><i class="wheel w1"></i><i class="wheel w2"></i><i class="wheel w3"></i><i class="wheel w4"></i></div>
 <div id="enemy" class="enemy"><div class="window"></div><i class="wheel w1"></i><i class="wheel w2"></i><i class="wheel w3"></i><i class="wheel w4"></i></div>
-<div id="over"><h2>💥 GAME OVER</h2><p>Score : <b id="final">0</b></p><button id="restart">Rejouer</button></div>
-</div>
-<p class="hint">⬅️ ➡️ ou A / D pour diriger la voiture</p>
+<div id="coin" class="coin"></div><div id="ramp" class="ramp"></div>
+<button id="nitroBtn">⚡<br>NITRO</button>
+<div id="over"><h2>💥 CRASH !</h2><p>Score : <b id="final">0</b> — Pièces : <b id="finalCoins">0</b></p><button id="restart">🔄 REJOUER</button></div></div>
+<p class="hint">⬅️➡️ / A-D : direction · ESPACE ou bouton : nitro · SHIFT : dérapage</p>
 <script>
-const game=document.getElementById('game'),car=document.getElementById('car'),enemy=document.getElementById('enemy');
-const scoreEl=document.getElementById('score'),speedEl=document.getElementById('speed'),over=document.getElementById('over'),final=document.getElementById('final');
-let x=game.clientWidth/2-24,y=-100,score=0,running=false,keys={},last=0,enemySpeed=4;
-function reset(){x=game.clientWidth/2-24;y=-100;score=0;enemySpeed=4;running=true;over.style.display='none';scoreEl.textContent=0;car.style.left=x+'px';enemy.style.left=(20+Math.random()*(game.clientWidth-68))+'px';enemy.style.top=y+'px';requestAnimationFrame(loop)}
+const G=document.getElementById('game'),car=document.getElementById('car'),enemy=document.getElementById('enemy'),coin=document.getElementById('coin'),ramp=document.getElementById('ramp');
+const scoreEl=document.getElementById('score'),coinsEl=document.getElementById('coins'),kmh=document.getElementById('kmh'),nitroEl=document.getElementById('nitro'),over=document.getElementById('over');
+let x=G.clientWidth/2-26,ey=-120,cx=120,score=0,coins=0,fuel=100,running=false,keys={},last=0,base=6,nitroOn=false;
+function rndX(w=55){return 18+Math.random()*(G.clientWidth-36-w)}
+function place(){enemy.style.left=rndX(55)+'px';ey=-120;coin.style.left=rndX(25)+'px';coin.style.top=(-300-Math.random()*250)+'px';ramp.style.left=rndX(70)+'px';ramp.style.top=(-600-Math.random()*250)+'px'}
+function start(){x=G.clientWidth/2-26;score=0;coins=0;fuel=100;base=6;running=true;over.style.display='none';scoreEl.textContent=0;coinsEl.textContent=0;place();requestAnimationFrame(loop)}
 function hit(a,b){return !(a.right<b.left||a.left>b.right||a.bottom<b.top||a.top>b.bottom)}
 function loop(t){if(!running)return;let dt=Math.min(2,(t-last)/16.67||1);last=t;
-if(keys.ArrowLeft||keys.a)x-=6*dt;if(keys.ArrowRight||keys.d)x+=6*dt;x=Math.max(15,Math.min(game.clientWidth-63,x));y+=enemySpeed*dt;
-car.style.left=x+'px';enemy.style.top=y+'px';
-if(y>game.clientHeight+20){score++;scoreEl.textContent=score;enemySpeed=Math.min(12,4+score*.12);speedEl.textContent=(enemySpeed/4).toFixed(1);y=-100;enemy.style.left=(15+Math.random()*(game.clientWidth-63))+'px'}
-if(hit(car.getBoundingClientRect(),enemy.getBoundingClientRect())){running=false;final.textContent=score;over.style.display='flex';return}
+let boost=(keys[' ']||keys.Shift)&&fuel>0;nitroOn=!!(keys[' ']||keys.Shift)&&fuel>0;if(nitroOn)fuel=Math.max(0,fuel-.65*dt);else fuel=Math.min(100,fuel+.08*dt);
+let speed=(base+(nitroOn?8:0))*dt;if(keys.ArrowLeft||keys.a)x-=7*dt*(keys.Shift?1.3:1);if(keys.ArrowRight||keys.d)x+=7*dt*(keys.Shift?1.3:1);x=Math.max(10,Math.min(G.clientWidth-62,x));
+ey+=speed;let coinY=parseFloat(coin.style.top||'-400')+speed, rampY=parseFloat(ramp.style.top||'-700')+speed;coin.style.top=coinY+'px';ramp.style.top=rampY+'px';enemy.style.top=ey+'px';car.style.left=x+'px';car.style.transform=keys.Shift?'rotate('+(keys.ArrowLeft||keys.a?-7:7)+'deg)':'rotate(0)';
+kmh.textContent=Math.round(105+speed*9);nitroEl.style.width=fuel+'%';
+if(ey>G.clientHeight+20){score++;scoreEl.textContent=score;base=Math.min(12,6+score*.08);place()}
+if(coinY>G.clientHeight){coin.style.left=rndX(25)+'px';coin.style.top='-150px'}
+if(rampY>G.clientHeight){ramp.style.left=rndX(70)+'px';ramp.style.top='-250px'}
+if(hit(car.getBoundingClientRect(),enemy.getBoundingClientRect())){running=false;document.getElementById('final').textContent=score;document.getElementById('finalCoins').textContent=coins;over.style.display='flex';return}
+if(hit(car.getBoundingClientRect(),coin.getBoundingClientRect())){coins++;coinsEl.textContent=coins;coin.style.top='-250px';coin.style.left=rndX(25)+'px'}
 requestAnimationFrame(loop)}
-addEventListener('keydown',e=>{keys[e.key]=true;if(['ArrowLeft','ArrowRight',' '].includes(e.key))e.preventDefault()});
-addEventListener('keyup',e=>keys[e.key]=false);
-document.getElementById('start').onclick=reset;document.getElementById('restart').onclick=reset;
+addEventListener('keydown',e=>{keys[e.key]=true;if(['ArrowLeft','ArrowRight',' ','Shift'].includes(e.key))e.preventDefault()});addEventListener('keyup',e=>keys[e.key]=false);
+document.getElementById('start').onclick=start;document.getElementById('restart').onclick=start;document.getElementById('nitroBtn').onmousedown=()=>keys[' ']=true;document.getElementById('nitroBtn').onmouseup=()=>keys[' ']=false;document.getElementById('nitroBtn').ontouchstart=e=>{e.preventDefault();keys[' ']=true};document.getElementById('nitroBtn').ontouchend=()=>keys[' ']=false;
 </script></body></html>
